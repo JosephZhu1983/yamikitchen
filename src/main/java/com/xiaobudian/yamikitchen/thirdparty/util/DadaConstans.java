@@ -22,9 +22,9 @@ public class DadaConstans {
     // 达达appkey
     public static final String DADA_APPKEY = "dada19bcdc6149a4895f";
     // 测试环境地址
-    public static final String DADA_URL = "http://public.ga.dev.imdada.cn";
+//    public static final String DADA_URL = "http://public.ga.dev.imdada.cn";
     // 正式环境地址
-// 	private static final String DADA_URL = "http://URL:public.imdada.cn";
+ 	private static final String DADA_URL = "http://public.imdada.cn";
     // 获取授权码
     public static final String GET_GRANT_CODE = "%s/oauth/authorize/?scope=dada_base&app_key=%s";
     // 获取access_token

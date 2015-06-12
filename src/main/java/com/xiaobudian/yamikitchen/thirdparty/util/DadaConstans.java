@@ -37,9 +37,12 @@ public class DadaConstans {
     public static final String GET_ACCESS_TOKEN = "%s/oauth/access_token/?grant_type=authorization_code&app_key=%s&grant_code=%s";
     // 添加订单
     public static final String ADD_ORDER_DADA = "%s/v1_0/addOrder/";
-    // 取消订单
-    public static final String CANCEL_ORDER_DADA = "%s/v1_0/cancelOrder/?token=%s&timestamp=%s&signature=%s&order_id=%s&reason=%s";
-
+    // 取消订单(测试环境)
+    public static final String CANCEL_ORDER_DADA_TEST = "%s/v1_0/cancelOrder/?token=%s&timestamp=%s&signature=%s&order_id=%s&reason=%s";
+    // 取消订单(正式环境)
+    public static final String CANCEL_ORDER_DADA_OFFICIAL = "%s/v2_0/cancelOrder/?token=%s&timestamp=%s&signature=%s&order_id=%s&cancel_reason=%s";
+    
+    private static String CANCEL_ORDER_DADA = CANCEL_ORDER_DADA_TEST;
     private static String DADA_URL = DADA_URL_TEST;
     
     static {
@@ -49,6 +52,7 @@ public class DadaConstans {
 		System.out.println("serverName ----- " + serverName);
 		if (serverName.contains("mobile.yamichu.com")) {
 			DADA_URL = DADA_URL_OFFICIAL;
+			CANCEL_ORDER_DADA = CANCEL_ORDER_DADA_OFFICIAL;
 		}
     }
     

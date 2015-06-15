@@ -1,10 +1,5 @@
 package com.xiaobudian.yamikitchen.thirdparty.util;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * @author Liuminglu 2015/5/19.
@@ -21,7 +16,8 @@ public class DadaConstans {
     /**
      * 达达回调接口 115.28.38.232
      */
-    public static final String DADA_CALL_BACK_URL = "http://115.28.38.232:8081/yamikitchen/api/thirdParty/dadaCallBack";
+    public static String DADA_CALL_BACK_URL = "http://115.28.38.232:8081/yamikitchen/api/thirdParty/dadaCallBack";
+    public static final String DADA_CALL_BACK_URL_OFFICIAL = "http://mobile.yamichu.com/yamikitchen/api/thirdParty/dadaCallBack";
 
     // 达达签名算法字符串
     public static final String DADA = "dada";
@@ -30,7 +26,7 @@ public class DadaConstans {
     // 测试环境地址
     public static final String DADA_URL_TEST = "http://public.ga.dev.imdada.cn";
     // 正式环境地址
- 	private static final String DADA_URL_OFFICIAL = "http://public.imdada.cn";
+ 	public static final String DADA_URL_OFFICIAL = "http://public.imdada.cn";
     // 获取授权码
     public static final String GET_GRANT_CODE = "%s/oauth/authorize/?scope=dada_base&app_key=%s";
     // 获取access_token
@@ -42,18 +38,14 @@ public class DadaConstans {
     // 取消订单(正式环境)
     public static final String CANCEL_ORDER_DADA_OFFICIAL = "%s/v2_0/cancelOrder/?token=%s&timestamp=%s&signature=%s&order_id=%s&cancel_reason=%s";
     
-    private static String CANCEL_ORDER_DADA = CANCEL_ORDER_DADA_TEST;
-    private static String DADA_URL = DADA_URL_TEST;
+    public static String CANCEL_ORDER_DADA = CANCEL_ORDER_DADA_TEST;
+    public static String DADA_URL = DADA_URL_TEST;
     
-    static {
-    	RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-		HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-		String serverName = request.getServerName();
-		System.out.println("serverName ----- " + serverName);
-		if (serverName.contains("mobile.yamichu.com")) {
-			DADA_URL = DADA_URL_OFFICIAL;
-			CANCEL_ORDER_DADA = CANCEL_ORDER_DADA_OFFICIAL;
-		}
+    public static void setDADAServer(Integer server) {
+    	if (1 == server) {
+    		DADA_URL = DADA_URL_OFFICIAL;
+    		DADA_CALL_BACK_URL = DADA_CALL_BACK_URL_OFFICIAL;
+    	}
     }
     
     public static String getGrantCodeUrl() {

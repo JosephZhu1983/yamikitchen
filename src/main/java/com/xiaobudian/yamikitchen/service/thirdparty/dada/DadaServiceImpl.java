@@ -157,20 +157,21 @@ public class DadaServiceImpl implements DadaService {
         requestMap.put("city_name", "上海");
         requestMap.put("city_code", "021");
         if (order.isPayOnDeliver()) {
-            requestMap.put("pay_for_supplier_fee", String.valueOf((order.getPrice() / 100.0)));
-            requestMap.put("fetch_from_receiver_fee", String.valueOf((order.getPrice() / 100.0) + 3d));
+            requestMap.put("pay_for_supplier_fee", String.valueOf(order.getPrice()));
+            requestMap.put("fetch_from_receiver_fee", String.valueOf(order.getPrice()));
+            requestMap.put("is_prepay", "1");
         } else {
             requestMap.put("pay_for_supplier_fee", "0");
             requestMap.put("fetch_from_receiver_fee", "0");
+            requestMap.put("is_prepay", "0");
         }
-        requestMap.put("deliver_fee", "0");
+        requestMap.put("deliver_fee", String.valueOf(order.getDeliverPrice()));
         requestMap.put("create_time", String.valueOf(order.getCreateDate().getTime()));
         requestMap.put("info", StringUtils.isBlank(order.getRemark()) ? "订单备注" : order.getRemark());
         requestMap.put("cargo_type", "1");
         requestMap.put("cargo_weight", "1");
         requestMap.put("cargo_price", String.valueOf(order.getPrice()));
         requestMap.put("cargo_num", String.valueOf(order.getTotalQuantity()));
-        requestMap.put("is_prepay", "0");
         requestMap.put("expected_fetch_time", "0");
         requestMap.put("expected_finish_time", String.valueOf(order.getDeliverDate()));
         requestMap.put("supplier_id", String.valueOf(order.getMerchantId()));
@@ -206,4 +207,5 @@ public class DadaServiceImpl implements DadaService {
         }
         return null;
     }
+    
 }

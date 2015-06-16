@@ -8,14 +8,14 @@ import com.xiaobudian.yamikitchen.repository.merchant.MerchantRepository;
 import com.xiaobudian.yamikitchen.repository.order.OrderRepository;
 import com.xiaobudian.yamikitchen.repository.thirdgroup.ThirdPartyRepository;
 import com.xiaobudian.yamikitchen.service.thirdparty.HttpClientService;
-import com.xiaobudian.yamikitchen.thirdparty.util.DadaConstans;
-import com.xiaobudian.yamikitchen.thirdparty.util.MD5Util;
 import com.xiaobudian.yamikitchen.web.dto.thirdparty.DadaDto;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.inject.Inject;
+
 import java.util.*;
 
 /**
@@ -31,10 +31,12 @@ public class DadaServiceImpl implements DadaService {
     private OrderRepository orderRepository;
     @Inject
     private MerchantRepository merchantRepository;
+    @Inject
+    private OAuthClient oAuthClient;
 
     @Override
     public String getGrantCode() {
-        String requestUrl = DadaConstans.getGrantCodeUrl();
+        String requestUrl = oAuthClient.grantCodeUrl;
         String resultJson = httpClientService.httpGet(requestUrl);
         DadaDto dadaDto = fromJson(resultJson);
         if (dadaDto == null || dadaDto.getResult() == null) {
@@ -46,7 +48,7 @@ public class DadaServiceImpl implements DadaService {
     @Override
     public DadaDto createAccessToken(String grantCode) {
         Assert.notNull(grantCode, "params can't be null : grantCode");
-        String requestUrl = DadaConstans.getAccessTokenUrl(grantCode);
+        String requestUrl = oAuthClient.getAccessTokenUrl(grantCode);
         String resultJson = httpClientService.httpGet(requestUrl);
         return fromJson(resultJson);
     }
@@ -72,7 +74,7 @@ public class DadaServiceImpl implements DadaService {
     public void addOrderToDada(Order order) {
         String token = getAccessToken();
         DadaDto dadaDto = addOrder(order, token);
-        if (dadaDto != null && !DadaConstans.DADA_RESPONSE_STATUS_OK.equals(dadaDto.getStatus())) {
+        if (dadaDto != null && !"ok".equals(dadaDto.getStatus())) {
             throw new RuntimeException("Add order to DADA error, errorCode:" + dadaDto.getErrorCode());
         }
         order.setDeliverGroupOrderStatus(1);
@@ -83,7 +85,7 @@ public class DadaServiceImpl implements DadaService {
     public void cancelOrder(Order order) {
         String token = getAccessToken();
         DadaDto dadaDto = cancelOrder(order, token);
-        if (dadaDto != null && !DadaConstans.DADA_RESPONSE_STATUS_OK.equals(dadaDto.getStatus())) {
+        if (dadaDto != null && !"ok".equals(dadaDto.getStatus())) {
             throw new RuntimeException("cancel order to DADA error, errorCode:" + dadaDto.getErrorCode());
         }
     }
@@ -109,26 +111,13 @@ public class DadaServiceImpl implements DadaService {
         return orderRepository.save(order);
     }
     
-    @Override
-    public String getSignature(Date currentDate, String token) {
-        String timestamp = String.valueOf(new Date().getTime());
-        List<String> list = new ArrayList<String>();
-        list.add(token);
-        list.add(timestamp);
-        list.add(DadaConstans.DADA);
-        Collections.sort(list);
-        String signString = list.toString();
-        signString = signString.replace(" ", "").replace(",", "").replace("[", "").replace("]", "");
-        return MD5Util.md5(signString);
-    }
-
     private void saveThirdGroup(ThirdParty thirdGroup) {
         DadaDto dadaDto = createAccessToken();
         thirdGroup.setAccessToken(dadaDto.getResult().getAccess_token());
         thirdGroup.setExpiresIn(dadaDto.getResult().getExpires_in());
         thirdGroup.setRefreshToken(dadaDto.getResult().getRefresh_token());
         thirdGroup.setCreateDate(new Date());
-        thirdGroup.setThirdGroup(DadaConstans.DADA);
+        thirdGroup.setThirdGroup(oAuthClient.key);
         httpClientRepository.save(thirdGroup);
     }
 
@@ -140,8 +129,8 @@ public class DadaServiceImpl implements DadaService {
 
     private DadaDto cancelOrder(Order order, String token) {
         Date currentDate = new Date();
-        String signature = getSignature(currentDate, token);
-        String requestUrl = DadaConstans.cancelOrderToDadaUrl(
+        String signature = oAuthClient.getSignature(currentDate, token);
+        String requestUrl = oAuthClient.getCancelOrderUrl(
                 token, currentDate.getTime(), signature, order.getOrderNo(), null);
         String resultJson = httpClientService.httpGet(requestUrl);
         return fromJson(resultJson);
@@ -152,7 +141,7 @@ public class DadaServiceImpl implements DadaService {
         requestMap.put("token", token);
         Date currentDate = new Date();
         requestMap.put("timestamp", String.valueOf(currentDate.getTime()));
-        requestMap.put("signature", getSignature(currentDate, token));
+        requestMap.put("signature", oAuthClient.getSignature(currentDate, token));
         requestMap.put("origin_id", order.getOrderNo());
         requestMap.put("city_name", "上海");
         requestMap.put("city_code", "021");
@@ -189,9 +178,9 @@ public class DadaServiceImpl implements DadaService {
         requestMap.put("receiver_tel", null);
         requestMap.put("receiver_lat", order.getLatitude() == null ? "0" : String.valueOf(order.getLatitude()));
         requestMap.put("receiver_lng", order.getLongitude() == null ? "0" : String.valueOf(order.getLongitude()));
-        requestMap.put("callback", DadaConstans.DADA_CALL_BACK_URL);
+        requestMap.put("callback", oAuthClient.callbackUrl);
 
-        String resultJson = httpClientService.httpPost(DadaConstans.addOrderToDadaUrl(), requestMap);
+        String resultJson = httpClientService.httpPost(oAuthClient.addOrderUrl, requestMap);
         return fromJson(resultJson);
     }
 
@@ -207,5 +196,5 @@ public class DadaServiceImpl implements DadaService {
         }
         return null;
     }
-    
+
 }

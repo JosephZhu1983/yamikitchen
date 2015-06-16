@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.xiaobudian.yamikitchen.common.Result;
 import com.xiaobudian.yamikitchen.service.thirdparty.dada.DadaService;
+import com.xiaobudian.yamikitchen.service.thirdparty.dada.OAuthClient;
 import com.xiaobudian.yamikitchen.web.dto.thirdparty.DadaDto;
 
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 public class ThirdPartyCallBackController {
     @Inject
     DadaService dadaService;
+    @Inject
+    OAuthClient oAuthClient;
 
     @RequestMapping(value = "/thirdParty/dadaCallBack", method = RequestMethod.POST)
     public Result dadaCallBack(HttpServletRequest request, HttpServletResponse response) {
@@ -64,7 +67,7 @@ public class ThirdPartyCallBackController {
     	String token = dadaService.getAccessToken();
         Date currentDate = new Date();
         Long timestamp = currentDate.getTime();
-        String signature = dadaService.getSignature(currentDate, token);
+        String signature = oAuthClient.getSignature(currentDate, token);
         String acceptOrder = "/v1_0/acceptOrder/";
         String url1 = "http://public.ga.dev.imdada.cn" + acceptOrder + "?token="
                 + token + "&timestamp=" + timestamp + "&order_id=" + orderNo + "&signature=" + signature;

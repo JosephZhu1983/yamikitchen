@@ -1,7 +1,5 @@
 package com.xiaobudian.yamikitchen.service.thirdparty.dada;
 
-import java.util.Date;
-
 import com.xiaobudian.yamikitchen.domain.order.Order;
 import com.xiaobudian.yamikitchen.web.dto.thirdparty.DadaDto;
 
@@ -23,7 +21,5 @@ public interface DadaService {
     String getAccessToken();
 
     void cancelOrder(Order order);
-
-	String getSignature(Date currentDate, String token);
 
 }

@@ -12,7 +12,6 @@ import com.xiaobudian.yamikitchen.domain.order.OrderStatus;
 import com.xiaobudian.yamikitchen.service.CouponService;
 import com.xiaobudian.yamikitchen.service.MerchantService;
 import com.xiaobudian.yamikitchen.service.OrderService;
-import com.xiaobudian.yamikitchen.thirdparty.util.DadaConstans;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.CollectionUtils;
@@ -143,12 +142,11 @@ public class OrderController {
         return Result.successResult(orderService.confirmOrder(order));
     }
 
-    @RequestMapping(value = "/orders/{orderId}/deliverGroup/{deliverGroup}/server/{server}", method = RequestMethod.POST)
-    public Result chooseDeliverGroup(@PathVariable Long orderId, @PathVariable Integer deliverGroup, @PathVariable Integer server, @AuthenticationPrincipal User user) {
+    @RequestMapping(value = "/orders/{orderId}/deliverGroup/{deliverGroup}", method = RequestMethod.POST)
+    public Result chooseDeliverGroup(@PathVariable Long orderId, @PathVariable Integer deliverGroup, @AuthenticationPrincipal User user) {
         Order order = orderService.getOrder(orderId);
         if (!OrderStatus.WAIT_DELIVER.equals(OrderStatus.from(order.getStatus())))
             throw new RuntimeException("order.change.deliver.group.unauthorized");
-        DadaConstans.setDADAServer(server);
         return Result.successResult(orderService.chooseDeliverGroup(order, deliverGroup));
     }
 
@@ -184,11 +182,10 @@ public class OrderController {
         return Result.successResult(orderService.finishOrder(order));
     }
 
-    @RequestMapping(value = "/orders/{orderId}/cancel/server/{server}", method = RequestMethod.POST)
-    public Result cancelOrder(@PathVariable Long orderId, @PathVariable Integer server, @AuthenticationPrincipal User user) {
+    @RequestMapping(value = "/orders/{orderId}/cancel", method = RequestMethod.POST)
+    public Result cancelOrder(@PathVariable Long orderId, @AuthenticationPrincipal User user) {
         Order order = getOrder(orderId, user, user.isMerchant());
         if (!order.canBeCanceledBy(user)) throw new RuntimeException("order.unauthorized");
-        DadaConstans.setDADAServer(server);
         return Result.successResult(orderService.cancelOrder(order, user.getId()));
     }
 }

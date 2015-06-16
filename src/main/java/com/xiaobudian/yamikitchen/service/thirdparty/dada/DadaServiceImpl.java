@@ -10,6 +10,7 @@ import com.xiaobudian.yamikitchen.repository.thirdgroup.ThirdPartyRepository;
 import com.xiaobudian.yamikitchen.service.thirdparty.HttpClientService;
 import com.xiaobudian.yamikitchen.web.dto.thirdparty.DadaDto;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -88,6 +89,8 @@ public class DadaServiceImpl implements DadaService {
         if (dadaDto != null && !"ok".equals(dadaDto.getStatus())) {
             throw new RuntimeException("cancel order to DADA error, errorCode:" + dadaDto.getErrorCode());
         }
+        order.setDeliverGroupOrderStatus(5);
+        orderRepository.save(order);
     }
 
     @Override
@@ -196,5 +199,5 @@ public class DadaServiceImpl implements DadaService {
         }
         return null;
     }
-
+    
 }

@@ -34,7 +34,7 @@ public class OAuthClient {
     }
     
     public String getCancelOrderUrl(String token, Long timestamp, String signature, String orderNo, String reason) {
-        return MessageFormat.format(cancelOrderUrl, token, timestamp, signature, orderNo, reason);
+        return MessageFormat.format(cancelOrderUrl, token, String.valueOf(timestamp), signature, orderNo, reason);
     }
 
     public String getSignature(Date date, String token) {

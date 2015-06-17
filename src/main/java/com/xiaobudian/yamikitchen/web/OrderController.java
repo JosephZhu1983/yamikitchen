@@ -185,6 +185,7 @@ public class OrderController {
     @RequestMapping(value = "/orders/{orderId}/cancel", method = RequestMethod.POST)
     public Result cancelOrder(@PathVariable Long orderId, @AuthenticationPrincipal User user) {
         Order order = getOrder(orderId, user, user.isMerchant());
+        if (order.canBeCanceledByStatus()) throw new RuntimeException("order.canot.canceled");
         if (!order.canBeCanceledBy(user)) throw new RuntimeException("order.unauthorized");
         return Result.successResult(orderService.cancelOrder(order, user.getId()));
     }

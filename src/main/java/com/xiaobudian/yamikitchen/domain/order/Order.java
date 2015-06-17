@@ -547,6 +547,10 @@ public class Order implements Serializable {
         if (user.isMerchant()) return isCancelable();
         return isDirectCancelable();
     }
+    
+    public boolean canBeCanceledByStatus() {
+    	return status == 1 || status == 2; 
+    }
 
     public boolean payIncludeCoupon() {
         return couponId != null && couponId > 0 && paymentMethod == 0;
